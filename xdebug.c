@@ -1638,11 +1638,15 @@ void xdebug_execute(zend_op_array *op_array TSRMLS_DC)
 
 	/* if we're in a ZEND_EXT_STMT, we ignore this function call as it's likely
 	   that it's just being called to check for breakpoints with conditions */
-	if (edata && edata->opline && edata->opline->opcode == ZEND_EXT_STMT) {
-#if PHP_VERSION_ID < 50500
-		xdebug_old_execute(op_array TSRMLS_CC);
-#else
+#if PHP_VERSION_ID >= 70000
+	if (edata && edata->func && ZEND_USER_CODE(edata->func->type) && edata->opline && edata->opline->opcode == ZEND_EXT_STMT) {
 		xdebug_old_execute_ex(execute_data TSRMLS_CC);
+#elif PHP_VERSION_ID >= 50500
+	if (edata && edata->opline && edata->opline->opcode == ZEND_EXT_STMT) {
+		xdebug_old_execute_ex(execute_data TSRMLS_CC);
+#else
+	if (edata && edata->opline && edata->opline->opcode == ZEND_EXT_STMT) {
+		xdebug_old_execute(op_array TSRMLS_CC);
 #endif
 		return;
 	}
@@ -1790,6 +1794,8 @@ void xdebug_execute(zend_op_array *op_array TSRMLS_DC)
 	fse->symbol_table = EG(current_execute_data)->symbol_table;
 	if (Z_OBJ(EG(current_execute_data)->This)) {
 		fse->This = &EG(current_execute_data)->This;
+	} else {
+		fse->This = NULL;
 	}
 #else
 	fse->symbol_table = EG(active_symbol_table);
@@ -2576,8 +2582,12 @@ ZEND_DLEXPORT void xdebug_statement_call(zend_op_array *op_array)
 
 						/* Check the condition */
 						if (zend_eval_string(brk->condition, &retval, "xdebug conditional breakpoint" TSRMLS_CC) == SUCCESS) {
+#if PHP_VERSION_ID >= 70000
+							break_ok = Z_TYPE(retval) == IS_TRUE;
+#else
 							convert_to_boolean(&retval);
-							break_ok = retval.value.lval;
+							break_ok = Z_BVAL(retval.value.lval;
+#endif
 							zval_dtor(&retval);
 						}
 

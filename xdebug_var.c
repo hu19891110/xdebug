@@ -1050,9 +1050,11 @@ void xdebug_var_export(zval **struc, xdebug_str *str, int level, int debug_zval,
 					options->runtime[level].end_element_nr = options->max_children;
 
 #if PHP_VERSION_ID >= 70000
+					ZEND_HASH_INC_APPLY_COUNT(myht);
 					ZEND_HASH_FOREACH_KEY_VAL_IND(myht, num, key, val) {
 						xdebug_array_element_export(val, num, key, level, str, debug_zval, options);
 					} ZEND_HASH_FOREACH_END();
+					ZEND_HASH_DEC_APPLY_COUNT(myht);
 #else
 					zend_hash_apply_with_arguments(myht TSRMLS_CC, (apply_func_args_t) xdebug_array_element_export, 4, level, str, debug_zval, options);
 #endif
@@ -1081,9 +1083,11 @@ void xdebug_var_export(zval **struc, xdebug_str *str, int level, int debug_zval,
 					options->runtime[level].end_element_nr = options->max_children;
 
 #if PHP_VERSION_ID >= 70000
+					ZEND_HASH_INC_APPLY_COUNT(myht);
 					ZEND_HASH_FOREACH_KEY_VAL_IND(myht, num, key, val) {
 						xdebug_object_element_export(val, num, key, level, str, debug_zval, options, class_name);
 					} ZEND_HASH_FOREACH_END();
+					ZEND_HASH_DEC_APPLY_COUNT(myht);
 #else
 					zend_hash_apply_with_arguments(myht TSRMLS_CC, (apply_func_args_t) xdebug_object_element_export, 5, level, str, debug_zval, options, class_name);
 #endif
@@ -1117,8 +1121,14 @@ void xdebug_var_export(zval **struc, xdebug_str *str, int level, int debug_zval,
 			break;
 		}
 
+#if PHP_VERSION_ID >= 70000
+		case IS_UNDEF:
+			xdebug_str_addl(str, "*uninitialized*", sizeof("*uninitialized*") - 1, 0);
+			break;
+#endif
+
 		default:
-			xdebug_str_addl(str, "NULL", 4, 0);
+			xdebug_str_addl(str, "NFC", 3, 0);
 			break;
 	}
 }
@@ -1222,6 +1232,17 @@ static void xdebug_var_synopsis(zval **struc, xdebug_str *str, int level, int de
 #endif
 			break;
 		}
+
+#if PHP_VERSION_ID >= 70000
+		case IS_UNDEF:
+			xdebug_str_addl(str, "*uninitialized*", sizeof("*uninitialized*") - 1, 0);
+			break;
+#endif
+
+		default:
+			xdebug_str_addl(str, "NFC", 3, 0);
+			break;
+
 	}
 }
 
@@ -1456,9 +1477,11 @@ void xdebug_var_export_text_ansi(zval **struc, xdebug_str *str, int mode, int le
 					options->runtime[level].end_element_nr = options->max_children;
 
 #if PHP_VERSION_ID >= 70000
+					ZEND_HASH_INC_APPLY_COUNT(myht);
 					ZEND_HASH_FOREACH_KEY_VAL_IND(myht, num, key, val) {
 						xdebug_array_element_export_text_ansi(val, num, key, level, mode, str, debug_zval, options);
 					} ZEND_HASH_FOREACH_END();
+					ZEND_HASH_DEC_APPLY_COUNT(myht);
 #else
 					zend_hash_apply_with_arguments(myht TSRMLS_CC, (apply_func_args_t) xdebug_array_element_export_text_ansi, 5, level, mode, str, debug_zval, options);
 #endif
@@ -1485,9 +1508,11 @@ void xdebug_var_export_text_ansi(zval **struc, xdebug_str *str, int mode, int le
 					options->runtime[level].start_element_nr = 0;
 					options->runtime[level].end_element_nr = options->max_children;
 #if PHP_VERSION_ID >= 70000
+					ZEND_HASH_INC_APPLY_COUNT(myht);
 					ZEND_HASH_FOREACH_KEY_VAL_IND(myht, num, key, val) {
 						xdebug_object_element_export_text_ansi(val, num, key, level, mode, str, debug_zval, options);
 					} ZEND_HASH_FOREACH_END();
+					ZEND_HASH_DEC_APPLY_COUNT(myht);
 #else
 					zend_hash_apply_with_arguments(myht TSRMLS_CC, (apply_func_args_t) xdebug_object_element_export_text_ansi, 5, level, mode, str, debug_zval, options);
 #endif
@@ -1521,8 +1546,14 @@ void xdebug_var_export_text_ansi(zval **struc, xdebug_str *str, int mode, int le
 			break;
 		}
 
+#if PHP_VERSION_ID >= 70000
+		case IS_UNDEF:
+			xdebug_str_add(str, xdebug_sprintf("%s*uninitialized*%s", ANSI_COLOR_NULL, ANSI_COLOR_RESET), 0);
+			break;
+#endif
+
 		default:
-			xdebug_str_add(str, xdebug_sprintf("%sNULL%s", ANSI_COLOR_NULL, ANSI_COLOR_RESET), 0);
+			xdebug_str_add(str, xdebug_sprintf("%sNFC%s", ANSI_COLOR_NULL, ANSI_COLOR_RESET), 0);
 			break;
 	}
 
@@ -1631,6 +1662,16 @@ static void xdebug_var_synopsis_text_ansi(zval **struc, xdebug_str *str, int mod
 #endif
 			break;
 		}
+
+#if PHP_VERSION_ID >= 70000
+		case IS_UNDEF:
+			xdebug_str_add(str, xdebug_sprintf("%s*uninitialized*%s", ANSI_COLOR_NULL, ANSI_COLOR_RESET), 0);
+			break;
+#endif
+
+		default:
+			xdebug_str_add(str, xdebug_sprintf("%sNFC%s", ANSI_COLOR_NULL, ANSI_COLOR_RESET), 0);
+			break;
 	}
 }
 
@@ -1675,24 +1716,23 @@ typedef struct
 	zval *zv;
 } xdebug_object_item;
 
+#if PHP_VERSION_ID >= 70000
+static int object_item_add_to_merged_hash(zval *zv_nptr, zend_string *hash_key, HashTable *merged, int object_type)
+{
+	zval **zv = &zv_nptr;
+#else
 static int object_item_add_to_merged_hash(zval **zv TSRMLS_DC, int num_args, va_list args, zend_hash_key *hash_key)
 {
-	HashTable          *merged;
-	int                 object_type;
+	HashTable          *merged = va_arg(args, HashTable*);
+	int                 object_type = va_arg(args, int);
+#endif
 	xdebug_object_item *item;
-
-	merged = va_arg(args, HashTable*);
-	object_type = va_arg(args, int);
 
 	item = xdmalloc(sizeof(xdebug_object_item));
 	item->type = object_type;
-#if PHP_VERSION_ID >= 70000
-	item->zv   = (zval*) zv;
-#else
 	item->zv   = *zv;
-#endif
-	item->name = (char*) HASH_KEY_VAL(hash_key);
-	item->name_len = HASH_KEY_LEN(hash_key);
+	item->name = (char*) HASH_APPLY_KEY_VAL(hash_key);
+	item->name_len = HASH_APPLY_KEY_LEN(hash_key);
 	item->index = hash_key->h;
 
 #if PHP_VERSION_ID >= 70000
@@ -1705,19 +1745,21 @@ static int object_item_add_to_merged_hash(zval **zv TSRMLS_DC, int num_args, va_
 }
 
 #if PHP_VERSION_ID >= 50400
+# if PHP_VERSION_ID >= 70000
+static int object_item_add_zend_prop_to_merged_hash(zend_property_info *zpp, HashTable *merged, int object_type, zend_class_entry *ce)
+{
+# else
 static int object_item_add_zend_prop_to_merged_hash(zend_property_info *zpp TSRMLS_DC, int num_args, va_list args, zend_hash_key *hash_key)
 {
-	HashTable          *merged;
-	int                 object_type;
+	HashTable          *merged = va_arg(args, HashTable*);
+	int                 object_type = va_arg(args, int);
+	zend_class_entry   *ce = va_arg(args, zend_class_entry*);
+# endif
 	xdebug_object_item *item;
-	zend_class_entry   *ce;
 
 	if ((zpp->flags & ZEND_ACC_STATIC) == 0) {
 		return 0;
 	}
-	merged = va_arg(args, HashTable*);
-	object_type = va_arg(args, int);
-	ce = va_arg(args, zend_class_entry*);
 
 	item = xdmalloc(sizeof(xdebug_object_item));
 	item->type = object_type;
@@ -1833,7 +1875,11 @@ static int xdebug_object_element_export_xml_node(xdebug_object_item **item TSRML
 		if ((*item)->name_len != 0) {
 			char *prop_name, *prop_class_name;
 
+#if PHP_VERSION_ID >= 70000
+			modifier = xdebug_get_property_info((*item)->name, (*item)->name_len, &prop_name, &prop_class_name);
+#else
 			modifier = xdebug_get_property_info((*item)->name, (*item)->name_len + 1, &prop_name, &prop_class_name);
+#endif
 
 			if (strcmp(modifier, "private") != 0 || strcmp(class_name, prop_class_name) == 0) {
 				xdebug_xml_add_attribute_ex(node, "name", xdstrdup(prop_name), 0, 1);
@@ -2039,9 +2085,11 @@ void xdebug_var_export_xml_node(zval **struc, char *name, xdebug_xml_node *node,
 						options->runtime[level].end_element_nr = options->max_children;
 					}
 #if PHP_VERSION_ID >= 70000
+					ZEND_HASH_INC_APPLY_COUNT(myht);
 					ZEND_HASH_FOREACH_KEY_VAL_IND(myht, num, key, z_val) {
 						xdebug_array_element_export_xml_node(z_val, num, key, level, node, name, options);
 					} ZEND_HASH_FOREACH_END();
+					ZEND_HASH_DEC_APPLY_COUNT(myht);
 #else
 					zend_hash_apply_with_arguments(myht TSRMLS_CC, (apply_func_args_t) xdebug_array_element_export_xml_node, 4, level, node, name, options);
 #endif
@@ -2055,6 +2103,9 @@ void xdebug_var_export_xml_node(zval **struc, char *name, xdebug_xml_node *node,
 			HashTable *merged_hash;
 			zend_class_entry *ce;
 			int is_temp;
+#if PHP_VERSION_ID >= 70000
+			zend_property_info *zpi_val;
+#endif
 
 			ALLOC_HASHTABLE(merged_hash);
 			zend_hash_init(merged_hash, 128, NULL, NULL, 0);
@@ -2064,13 +2115,31 @@ void xdebug_var_export_xml_node(zval **struc, char *name, xdebug_xml_node *node,
 
 			/* Adding static properties */
 			if (&ce->properties_info) {
+#if PHP_VERSION_ID >= 70000
+				ZEND_HASH_INC_APPLY_COUNT(&ce->properties_info);
+				ZEND_HASH_FOREACH_PTR(&ce->properties_info, zpi_val) {
+					object_item_add_zend_prop_to_merged_hash(zpi_val, merged_hash, (int) XDEBUG_OBJECT_ITEM_TYPE_STATIC_PROPERTY, ce);
+				} ZEND_HASH_FOREACH_END();
+				ZEND_HASH_DEC_APPLY_COUNT(&ce->properties_info);
+#else
 				zend_hash_apply_with_arguments(&ce->properties_info TSRMLS_CC, (apply_func_args_t) object_item_add_zend_prop_to_merged_hash, 3, merged_hash, (int) XDEBUG_OBJECT_ITEM_TYPE_STATIC_PROPERTY, ce);
+#endif
 			}
 
 			/* Adding normal properties */
 			myht = xdebug_objdebug_pp(struc, &is_temp TSRMLS_CC);
 			if (myht) {
+#if PHP_VERSION_ID >= 70000
+				zval *tmp_val;
+
+				ZEND_HASH_INC_APPLY_COUNT(myht);
+				ZEND_HASH_FOREACH_KEY_VAL_IND(myht, num, key, tmp_val) {
+					object_item_add_to_merged_hash(tmp_val, key, merged_hash, (int) XDEBUG_OBJECT_ITEM_TYPE_PROPERTY);
+				} ZEND_HASH_FOREACH_END();
+				ZEND_HASH_DEC_APPLY_COUNT(myht);
+#else
 				zend_hash_apply_with_arguments(myht TSRMLS_CC, (apply_func_args_t) object_item_add_to_merged_hash, 2, merged_hash, (int) XDEBUG_OBJECT_ITEM_TYPE_PROPERTY);
+#endif
 			}
 
 			xdebug_xml_add_attribute(node, "type", "object");
@@ -2091,9 +2160,11 @@ void xdebug_var_export_xml_node(zval **struc, char *name, xdebug_xml_node *node,
 						options->runtime[level].end_element_nr = options->max_children;
 					}
 #if PHP_VERSION_ID >= 70000
+					ZEND_HASH_INC_APPLY_COUNT(merged_hash);
 					ZEND_HASH_FOREACH_KEY_PTR(merged_hash, num, key, xoi_val) {
 						xdebug_object_element_export_xml_node(xoi_val, num, key, level, node, name, options, class_name);
 					} ZEND_HASH_FOREACH_END();
+					ZEND_HASH_DEC_APPLY_COUNT(merged_hash);
 
 #else
 					zend_hash_apply_with_arguments(merged_hash TSRMLS_CC, (apply_func_args_t) xdebug_object_element_export_xml_node, 5, level, node, name, options, class_name);
@@ -2119,6 +2190,12 @@ void xdebug_var_export_xml_node(zval **struc, char *name, xdebug_xml_node *node,
 #endif
 			break;
 		}
+
+#if PHP_VERSION_ID >= 70000
+		case IS_UNDEF:
+			xdebug_xml_add_attribute(node, "type", "uninitialized");
+			break;
+#endif
 
 		default:
 			xdebug_xml_add_attribute(node, "type", "null");
@@ -2285,15 +2362,10 @@ void xdebug_var_export_fancy(zval **struc, xdebug_str *str, int level, int debug
 	if (Z_TYPE_P(*struc) == IS_REFERENCE) {
 		zval *tmpz = &((*struc)->value.ref->val);
 		struc = &tmpz;
-		xdebug_str_add(str, "&amp;", 0);
 	}
 #else
 	if (debug_zval) {
 		xdebug_str_add(str, xdebug_sprintf("<i>(refcount=%d, is_ref=%d)</i>,", (*struc)->refcount__gc, (*struc)->is_ref__gc), 1);
-	} else {
-		if ((*struc)->is_ref__gc) {
-			xdebug_str_add(str, "&amp;", 0);
-		}
 	}
 #endif
 
@@ -2349,9 +2421,11 @@ void xdebug_var_export_fancy(zval **struc, xdebug_str *str, int level, int debug
 						options->runtime[level].end_element_nr = options->max_children;
 
 #if PHP_VERSION_ID >= 70000
+						ZEND_HASH_INC_APPLY_COUNT(myht);
 						ZEND_HASH_FOREACH_KEY_VAL_IND(myht, num, key, val) {
 							xdebug_array_element_export_fancy(val, num, key, level, str, debug_zval, options);
 						} ZEND_HASH_FOREACH_END();
+						ZEND_HASH_DEC_APPLY_COUNT(myht);
 #else
 						zend_hash_apply_with_arguments(myht TSRMLS_CC, (apply_func_args_t) xdebug_array_element_export_fancy, 4, level, str, debug_zval, options);
 #endif
@@ -2363,7 +2437,7 @@ void xdebug_var_export_fancy(zval **struc, xdebug_str *str, int level, int debug
 					xdebug_str_add(str, xdebug_sprintf("%*s...\n", (level * 4) - 2, ""), 1);
 				}
 			} else {
-				xdebug_str_addl(str, "<i>&</i><b>array</b>\n", 21, 0);
+				xdebug_str_addl(str, "<i>&amp;</i><b>array</b>\n", 21, 0);
 			}
 			break;
 
@@ -2381,9 +2455,11 @@ void xdebug_var_export_fancy(zval **struc, xdebug_str *str, int level, int debug
 					options->runtime[level].end_element_nr = options->max_children;
 
 #if PHP_VERSION_ID >= 70000
+					ZEND_HASH_INC_APPLY_COUNT(myht);
 					ZEND_HASH_FOREACH_KEY_VAL_IND(myht, num, key, val) {
 						xdebug_object_element_export_fancy(val, num, key, level, str, debug_zval, options, class_name);
 					} ZEND_HASH_FOREACH_END();
+					ZEND_HASH_DEC_APPLY_COUNT(myht);
 #else
 					zend_hash_apply_with_arguments(myht TSRMLS_CC, (apply_func_args_t) xdebug_object_element_export_fancy, 5, level, str, debug_zval, options, class_name);
 #endif
@@ -2391,7 +2467,7 @@ void xdebug_var_export_fancy(zval **struc, xdebug_str *str, int level, int debug
 					xdebug_str_add(str, xdebug_sprintf("%*s...\n", (level * 4) - 2, ""), 1);
 				}
 			} else {
-				xdebug_str_add(str, xdebug_sprintf("<i>&</i><b>object</b>(<i>%s</i>)", STR_NAME_VAL(Z_OBJCE_P(*struc)->name)), 1);
+				xdebug_str_add(str, xdebug_sprintf("<i>&amp;</i><b>object</b>(<i>%s</i>)", STR_NAME_VAL(Z_OBJCE_P(*struc)->name)), 1);
 				xdebug_str_add(str, xdebug_sprintf("[<i>%d</i>]\n", Z_OBJ_HANDLE_P(*struc)), 1);
 			}
 			if (is_temp) {
@@ -2414,8 +2490,14 @@ void xdebug_var_export_fancy(zval **struc, xdebug_str *str, int level, int debug
 			break;
 		}
 
+#if PHP_VERSION_ID >= 70000
+		case IS_UNDEF:
+			xdebug_str_add(str, xdebug_sprintf("<font color='%s'>*uninitialized*</font>", COLOR_NULL), 0);
+			break;
+#endif
+
 		default:
-			xdebug_str_add(str, xdebug_sprintf("<font color='%s'>null</font>", COLOR_NULL), 0);
+			xdebug_str_add(str, xdebug_sprintf("<font color='%s'>NFC</font>", COLOR_NULL), 0);
 			break;
 	}
 	if (Z_TYPE_P(*struc) != IS_ARRAY && Z_TYPE_P(*struc) != IS_OBJECT) {
@@ -2580,6 +2662,16 @@ static void xdebug_var_synopsis_fancy(zval **struc, xdebug_str *str, int level, 
 #endif
 			break;
 		}
+
+#if PHP_VERSION_ID >= 70000
+		case IS_UNDEF:
+			xdebug_str_add(str, xdebug_sprintf("<font color='%s'>*uninitialized*</font>", COLOR_NULL), 0);
+			break;
+#endif
+
+		default:
+			xdebug_str_add(str, xdebug_sprintf("<font color='%s'>NFC</font>", COLOR_NULL), 0);
+			break;
 	}
 }
 
