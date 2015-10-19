@@ -314,7 +314,9 @@ static zval **get_arrayobject_storage(zval *parent TSRMLS_DC)
 	HashTable *properties = Z_OBJDEBUG_P(parent, is_temp);
 
 #if PHP_VERSION_ID >= 70000
-	if ((tmp = zend_hash_str_find_ptr(properties, "\0ArrayObject\0storage", sizeof("*ArrayObject*storage"))) != NULL) {
+	zval *np_tmp;
+	if ((np_tmp = zend_hash_str_find(properties, "\0ArrayObject\0storage", sizeof("*ArrayObject*storage") - 1)) != NULL) {
+		tmp = &np_tmp;
 #else
 	if (zend_hash_find(properties, "\0ArrayObject\0storage", sizeof("*ArrayObject*storage"), (void **) &tmp) == SUCCESS) {
 #endif
@@ -334,11 +336,10 @@ static zval **get_splobjectstorage_storage(zval *parent TSRMLS_DC)
 	zval *np_tmp;
 	if ((np_tmp = zend_hash_str_find(properties, "\0SplObjectStorage\0storage", sizeof("*SplObjectStorage*storage") - 1)) != NULL) {
 		tmp = &np_tmp;
-		return tmp;
 #else
 	if (zend_hash_find(properties, "\0SplObjectStorage\0storage", sizeof("*SplObjectStorage*storage"), (void **) &tmp) == SUCCESS) {
-		return tmp;
 #endif
+		return tmp;
 	}
 
 	return NULL;
@@ -520,11 +521,11 @@ static zval* fetch_zval_from_symbol_table(zval *parent, char* name, unsigned int
 			/* Then we try a public property */
 			element = prepare_search_key(name, &element_length, "", 0);
 #if PHP_VERSION_ID >= 70000
-			if (ht && ((retval_pp = zend_symtable_str_find_ptr(ht, element, element_length)) != NULL)) {
+			if (ht && ((retval_p = zend_symtable_str_find(ht, element, element_length)) != NULL)) {
 #else
 			if (ht && zend_symtable_find(ht, element, element_length + 1, (void **) &retval_pp) == SUCCESS) {
-#endif
 				retval_p = *retval_pp;
+#endif
 				goto cleanup;
 			}
 			element_length = name_length;
@@ -533,11 +534,11 @@ static zval* fetch_zval_from_symbol_table(zval *parent, char* name, unsigned int
 			free(element);
 			element = prepare_search_key(name, &element_length, "*", 1);
 #if PHP_VERSION_ID >= 70000
-			if (ht && ((retval_pp = zend_hash_str_find_ptr(ht, element, element_length)) != NULL)) {
+			if (ht && ((retval_p = zend_hash_str_find(ht, element, element_length)) != NULL)) {
 #else
 			if (ht && zend_hash_find(ht, element, element_length + 1, (void **) &retval_pp) == SUCCESS) {
-#endif
 				retval_p = *retval_pp;
+#endif
 				goto cleanup;
 			}
 			element_length = name_length;
@@ -546,11 +547,11 @@ static zval* fetch_zval_from_symbol_table(zval *parent, char* name, unsigned int
 			free(element);
 			element = prepare_search_key(name, &element_length, ccn, ccnl);
 #if PHP_VERSION_ID >= 70000
-			if (ht && ((retval_pp = zend_hash_str_find_ptr(ht, element, element_length)) != NULL)) {
+			if (ht && ((retval_p = zend_hash_str_find(ht, element, element_length)) != NULL)) {
 #else
 			if (ht && zend_hash_find(ht, element, element_length + 1, (void **) &retval_pp) == SUCCESS) {
-#endif
 				retval_p = *retval_pp;
+#endif
 				goto cleanup;
 			}
 			element_length = name_length;
@@ -1728,7 +1729,7 @@ typedef struct
 } xdebug_object_item;
 
 #if PHP_VERSION_ID >= 70000
-static int object_item_add_to_merged_hash(zval *zv_nptr, zend_string *hash_key, HashTable *merged, int object_type)
+static int object_item_add_to_merged_hash(zval *zv_nptr, zend_ulong index, zend_string *hash_key, HashTable *merged, int object_type)
 {
 	zval **zv = &zv_nptr;
 #else
@@ -1739,12 +1740,23 @@ static int object_item_add_to_merged_hash(zval **zv TSRMLS_DC, int num_args, va_
 #endif
 	xdebug_object_item *item;
 
-	item = xdmalloc(sizeof(xdebug_object_item));
+	item = xdcalloc(1, sizeof(xdebug_object_item));
 	item->type = object_type;
 	item->zv   = *zv;
+#if PHP_VERSION_ID >= 70000
+	if (hash_key) {
+		item->name = (char*) HASH_APPLY_KEY_VAL(hash_key);
+		item->name_len = HASH_APPLY_KEY_LEN(hash_key) - 1;
+		item->index = hash_key->h;
+	} else {
+		item->name = xdebug_sprintf("%ld", index);
+		item->name_len = strlen(item->name);
+	}
+#else
 	item->name = (char*) HASH_APPLY_KEY_VAL(hash_key);
 	item->name_len = HASH_APPLY_KEY_LEN(hash_key);
 	item->index = hash_key->h;
+#endif
 
 #if PHP_VERSION_ID >= 70000
 	zend_hash_next_index_insert_ptr(merged, item);
@@ -2163,7 +2175,7 @@ void xdebug_var_export_xml_node(zval **struc, char *name, xdebug_xml_node *node,
 
 				ZEND_HASH_INC_APPLY_COUNT(myht);
 				ZEND_HASH_FOREACH_KEY_VAL_IND(myht, num, key, tmp_val) {
-					object_item_add_to_merged_hash(tmp_val, key, merged_hash, (int) XDEBUG_OBJECT_ITEM_TYPE_PROPERTY);
+					object_item_add_to_merged_hash(tmp_val, num, key, merged_hash, (int) XDEBUG_OBJECT_ITEM_TYPE_PROPERTY);
 				} ZEND_HASH_FOREACH_END();
 				ZEND_HASH_DEC_APPLY_COUNT(myht);
 #else
