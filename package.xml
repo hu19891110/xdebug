@@ -33,11 +33,11 @@ Xdebug also provides:
   <active>yes</active>
  </lead>
 
- <date>2015-02-22</date>
- <time>14:48:00</time>
+ <date>2015-11-05</date>
+ <time>12:42:57</time>
  <version>
-  <release>2.3.0</release>
-  <api>2.3.0</api>
+  <release>2.4.0beta1</release>
+  <api>2.4.0beta1</api>
  </version>
  <stability>
   <release>stable</release>
@@ -45,6 +45,238 @@ Xdebug also provides:
  </stability>
  <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD style</license>
  <notes>
+Thu, Sep 05, 2015 - xdebug 2.4.0beta1
+
++ Added features:
+
+  - Implemented issue #1109: Added support for PHP 7.
+  - Implemented issue #1153: Add function monitor functionality.
+  - Implemented issue #1183: Add xdebug.show_error_trace setting to
+    allow/disallow to show a stack trace for every Error (throwable)
+
+= Fixed bugs:
+
+  - Fixed issue #1070: Too many open files error with php-fpm: connections not
+    closed. (Patch by Sean Dubois)
+  - Fixed issue #1123: With Xdebug 2.3.1, PHPUnit with coverage is
+    exponentially slower than without
+  - Fixed issue #1166: Using $this in __debugInfo() causes infinite recursion
+  - Fixed issue #1173: Segmentation fault in xdebug_get_monitored_functions()
+  - Fixed issue #1182: Using PHPStorm with PHP 7 RC1 and xdebug 2.4-dev break
+    points are passed by including setting break point at start of script
+  - Fixed issue #1192: Dead code analysis does not work for generators with
+    'return;'
+ </notes>
+
+ <contents>
+  <dir name="/">
+   <dir name="contrib">
+    <file name="tracefile-analyser.php" role="doc" />
+    <file name="xt.vim" role="doc" />
+   </dir> <!-- /contrib -->
+   <dir name="debugclient">
+    <dir name="build">
+     <file name="buildcheck.sh" role="src" />
+     <file name="buildconf1.mk" role="src" />
+     <file name="buildconf2.mk" role="src" />
+     <file name="clean.mk" role="src" />
+     <file name="config-stubs" role="src" />
+    </dir> <!-- /debugclient/build -->
+    <file name="acinclude.m4" role="src" />
+    <file name="buildconf" role="src" />
+    <file name="config.guess" role="src" />
+    <file name="config.h.in" role="src" />
+    <file name="config.sub" role="src" />
+    <file name="configure" role="src" />
+    <file name="configure.in" role="src" />
+    <file name="cvsclean" role="src" />
+    <file name="debugclient.dsp" role="src" />
+    <file name="depcomp" role="src" />
+    <file name="INSTALL" role="src" />
+    <file name="install-sh" role="src" />
+    <file name="LICENSE" role="src" />
+    <file name="ltmain.sh" role="src" />
+    <file name="main.c" role="src" />
+    <file name="Makefile.in" role="src" />
+    <file name="missing" role="src" />
+    <file name="mkinstalldirs" role="src" />
+    <file name="usefulstuff.c" role="src" />
+    <file name="usefulstuff.h" role="src" />
+   </dir> <!-- /debugclient -->
+   <file name="config.m4" role="src" />
+   <file name="config.w32" role="src" />
+   <file name="CREDITS" role="doc" />
+   <file name="LICENSE" role="doc" />
+   <file name="Makefile.frag" role="src" />
+   <file name="Makefile.in" role="src" />
+   <file name="php_xdebug.h" role="src" />
+   <file name="README.rst" role="doc" />
+   <file name="usefulstuff.c" role="src" />
+   <file name="usefulstuff.h" role="src" />
+   <file name="xdebug.c" role="src" />
+   <file name="xdebug_branch_info.c" role="src" />
+   <file name="xdebug_branch_info.h" role="src" />
+   <file name="xdebug_code_coverage.c" role="src" />
+   <file name="xdebug_code_coverage.h" role="src" />
+   <file name="xdebug_com.c" role="src" />
+   <file name="xdebug_com.h" role="src" />
+   <file name="xdebug_compat.c" role="src" />
+   <file name="xdebug_compat.h" role="src" />
+   <file name="xdebug_handlers.c" role="src" />
+   <file name="xdebug_handlers.h" role="src" />
+   <file name="xdebug_handler_dbgp.c" role="src" />
+   <file name="xdebug_handler_dbgp.h" role="src" />
+   <file name="xdebug_hash.c" role="src" />
+   <file name="xdebug_hash.h" role="src" />
+   <file name="xdebug_llist.c" role="src" />
+   <file name="xdebug_llist.h" role="src" />
+   <file name="xdebug_mm.h" role="src" />
+   <file name="xdebug_monitor.c" role="src" />
+   <file name="xdebug_monitor.h" role="src" />
+   <file name="xdebug_private.c" role="src" />
+   <file name="xdebug_private.h" role="src" />
+   <file name="xdebug_profiler.c" role="src" />
+   <file name="xdebug_profiler.h" role="src" />
+   <file name="xdebug_set.c" role="src" />
+   <file name="xdebug_set.h" role="src" />
+   <file name="xdebug_stack.c" role="src" />
+   <file name="xdebug_stack.h" role="src" />
+   <file name="xdebug_str.c" role="src" />
+   <file name="xdebug_str.h" role="src" />
+   <file name="xdebug_superglobals.c" role="src" />
+   <file name="xdebug_superglobals.h" role="src" />
+   <file name="xdebug_tracing.c" role="src" />
+   <file name="xdebug_tracing.h" role="src" />
+   <file name="xdebug_trace_textual.c" role="src" />
+   <file name="xdebug_trace_textual.h" role="src" />
+   <file name="xdebug_trace_computerized.c" role="src" />
+   <file name="xdebug_trace_computerized.h" role="src" />
+   <file name="xdebug_trace_html.c" role="src" />
+   <file name="xdebug_trace_html.h" role="src" />
+   <file name="xdebug_var.c" role="src" />
+   <file name="xdebug_var.h" role="src" />
+   <file name="xdebug_xml.c" role="src" />
+   <file name="xdebug_xml.h" role="src" />
+  </dir> <!-- / -->
+ </contents>
+ <dependencies>
+  <required>
+   <php>
+    <min>5.4.0</min>
+   </php>
+   <pearinstaller>
+    <min>1.9.1</min>
+   </pearinstaller>
+  </required>
+ </dependencies>
+ <providesextension>xdebug</providesextension>
+ <zendextsrcrelease />
+ <changelog>
+
+  <release>
+   <date>2015-06-19</date>
+   <time>16:15:00</time>
+   <version>
+    <release>2.3.3</release>
+    <api>2.3.3</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD style</license>
+   <notes>
+Fri, Jun 19, 2015 - xdebug 2.3.3
+
+= Fixed bugs:
+
+  - Fixed issue #1130: Escaping issues with docrefs and HTML characters in
+    error messages
+  - Fixed issue #1133: PDO exception code value type is changed
+  - Fixed issue #1137: Windows does not support %zu formatting for sprintf
+  - Fixed issue #1140: Tracing with __debugInfo() crashes Xdebug due to a stack
+    overflow
+  - Fixed issue #1148: Can't disable max_nesting_function
+  - Fixed issue #1151: Crash when another extension calls call_user_function()
+    during RINIT
+
+  - Fixed crash with code coverage (Antony Dovgal)
+  - Fixed usage of virtual_file_ex and STR_FREE (Remi Collet)
+  - Reset overloaded opcodes at the end of each request (Eran Ifrah)
+
+= Improvements:
+
+  - Fixed issue #686: Not possible to inspect SplObjectStorage instances with
+    Xdebug
+  - Fixed issue #864: No attributes are shown if an object extends
+    ArrayIterator
+  - Fixed issue #996: Can't evaluate property of class that extends ArrayObject
+  - Fixed issue #1134: Allow introspection of ArrayObject implementation's
+    internal storage
+  - Get rid of setlocale hack, by using %F instead of %f (and speed up tracing
+    by 15-20%)
+   </notes>
+  </release>
+
+  <release>
+   <date>2015-03-22</date>
+   <time>12:34:56</time>
+   <version>
+    <release>2.3.2</release>
+    <api>2.3.2</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD style</license>
+   <notes>
+Sun, Mar 22, 2015 - xdebug 2.3.2
+
+= Fixed bugs:
+
+  - Fixed issue #1117: Path/branch coverage sometimes crashes
+  - Fixed issue #1121: Segfaults with path/branch coverage
+   </notes>
+  </release>
+
+  <release>
+   <date>2015-02-24</date>
+   <time>22:02:00</time>
+   <version>
+    <release>2.3.1</release>
+    <api>2.3.1</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD style</license>
+   <notes>
+Tue, Feb 24, 2015 - xdebug 2.3.1
+
+= Fixed bugs:
+
+  - Fixed issue #1112: Setting an invalid xdebug.trace_format causes Xdebug to
+    crash
+  - Fixed issue #1113: xdebug.*_trigger do no longer work, due to NULL not
+    being an empty string
+   </notes>
+  </release>
+
+  <release>
+   <date>2015-02-22</date>
+   <time>14:48:00</time>
+   <version>
+    <release>2.3.0</release>
+    <api>2.3.0</api>
+   </version>
+   <stability>
+    <release>stable</release>
+    <api>stable</api>
+   </stability>
+   <license uri="http://www.opensource.org/licenses/bsd-license.php">BSD style</license>
+   <notes>
 Sun, Feb 22, 2015 - xdebug 2.3.0
 
 = Fixed bugs:
@@ -131,120 +363,14 @@ Sun, Feb 22, 2015 - xdebug 2.3.0
     - Implemented issue #1057: Removed trailing whitespace from example
       xdebug.ini
     - Implemented issue #1096: Improve performance improvement for handling
-      breakpoints by ignoring locales (Danief Sloof)
+      breakpoints by ignoring locales (Daniel Sloof)
     - Implemented issue #1100: Raise default max_nesting_level to 256
 
 - Removed features:
 
     - Support for PHP versions lower than PHP 5.4 have been dropped.
-
- </notes>
-
- <contents>
-  <dir name="/">
-   <dir name="contrib">
-    <file name="tracefile-analyser.php" role="doc" />
-    <file name="xt.vim" role="doc" />
-   </dir> <!-- /contrib -->
-   <dir name="debugclient">
-    <dir name="build">
-     <file name="buildcheck.sh" role="src" />
-     <file name="buildconf1.mk" role="src" />
-     <file name="buildconf2.mk" role="src" />
-     <file name="clean.mk" role="src" />
-     <file name="config-stubs" role="src" />
-    </dir> <!-- /debugclient/build -->
-    <file name="acinclude.m4" role="src" />
-    <file name="buildconf" role="src" />
-    <file name="config.guess" role="src" />
-    <file name="config.h.in" role="src" />
-    <file name="config.sub" role="src" />
-    <file name="configure" role="src" />
-    <file name="configure.in" role="src" />
-    <file name="cvsclean" role="src" />
-    <file name="debugclient.dsp" role="src" />
-    <file name="depcomp" role="src" />
-    <file name="INSTALL" role="src" />
-    <file name="install-sh" role="src" />
-    <file name="LICENSE" role="src" />
-    <file name="ltmain.sh" role="src" />
-    <file name="main.c" role="src" />
-    <file name="Makefile.in" role="src" />
-    <file name="missing" role="src" />
-    <file name="mkinstalldirs" role="src" />
-    <file name="usefulstuff.c" role="src" />
-    <file name="usefulstuff.h" role="src" />
-   </dir> <!-- /debugclient -->
-   <file name="config.m4" role="src" />
-   <file name="config.w32" role="src" />
-   <file name="CREDITS" role="doc" />
-   <file name="LICENSE" role="doc" />
-   <file name="Makefile.frag" role="src" />
-   <file name="Makefile.in" role="src" />
-   <file name="NEWS" role="doc" />
-   <file name="php_xdebug.h" role="src" />
-   <file name="README" role="doc" />
-   <file name="usefulstuff.c" role="src" />
-   <file name="usefulstuff.h" role="src" />
-   <file name="xdebug.c" role="src" />
-   <file name="xdebug_branch_info.c" role="src" />
-   <file name="xdebug_branch_info.h" role="src" />
-   <file name="xdebug_code_coverage.c" role="src" />
-   <file name="xdebug_code_coverage.h" role="src" />
-   <file name="xdebug_com.c" role="src" />
-   <file name="xdebug_com.h" role="src" />
-   <file name="xdebug_compat.c" role="src" />
-   <file name="xdebug_compat.h" role="src" />
-   <file name="xdebug_handlers.c" role="src" />
-   <file name="xdebug_handlers.h" role="src" />
-   <file name="xdebug_handler_dbgp.c" role="src" />
-   <file name="xdebug_handler_dbgp.h" role="src" />
-   <file name="xdebug_hash.c" role="src" />
-   <file name="xdebug_hash.h" role="src" />
-   <file name="xdebug_llist.c" role="src" />
-   <file name="xdebug_llist.h" role="src" />
-   <file name="xdebug_mm.h" role="src" />
-   <file name="xdebug_monitor.c" role="src" />
-   <file name="xdebug_monitor.h" role="src" />
-   <file name="xdebug_private.c" role="src" />
-   <file name="xdebug_private.h" role="src" />
-   <file name="xdebug_profiler.c" role="src" />
-   <file name="xdebug_profiler.h" role="src" />
-   <file name="xdebug_set.c" role="src" />
-   <file name="xdebug_set.h" role="src" />
-   <file name="xdebug_stack.c" role="src" />
-   <file name="xdebug_stack.h" role="src" />
-   <file name="xdebug_str.c" role="src" />
-   <file name="xdebug_str.h" role="src" />
-   <file name="xdebug_superglobals.c" role="src" />
-   <file name="xdebug_superglobals.h" role="src" />
-   <file name="xdebug_tracing.c" role="src" />
-   <file name="xdebug_tracing.h" role="src" />
-   <file name="xdebug_trace_textual.c" role="src" />
-   <file name="xdebug_trace_textual.h" role="src" />
-   <file name="xdebug_trace_computerized.c" role="src" />
-   <file name="xdebug_trace_computerized.h" role="src" />
-   <file name="xdebug_trace_html.c" role="src" />
-   <file name="xdebug_trace_html.h" role="src" />
-   <file name="xdebug_var.c" role="src" />
-   <file name="xdebug_var.h" role="src" />
-   <file name="xdebug_xml.c" role="src" />
-   <file name="xdebug_xml.h" role="src" />
-  </dir> <!-- / -->
- </contents>
- <dependencies>
-  <required>
-   <php>
-    <min>5.4.0</min>
-   </php>
-   <pearinstaller>
-    <min>1.9.1</min>
-   </pearinstaller>
-  </required>
- </dependencies>
- <providesextension>xdebug</providesextension>
- <zendextsrcrelease />
- <changelog>
+   </notes>
+  </release>
 
   <release>
    <date>2015-01-21</date>
@@ -2029,3 +2155,6 @@ Sun, Dec 24, 2006 - xdebug 2.0.0rc2
   </release>
  </changelog>
 </package>
+<!--
+vim:et:ts=1:sw=1
+-->
