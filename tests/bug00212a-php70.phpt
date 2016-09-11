@@ -1,7 +1,10 @@
 --TEST--
-Test for bug #212: coverage coverage inaccurate (1) (>= PHP 7.0)
+Test for bug #212: coverage coverage inaccurate (1) (>= PHP 7.0, < PHP 7.1)
 --SKIPIF--
-<?php if (!version_compare(phpversion(), "7.0", '>=')) echo "skip >= PHP 7.0 needed\n"; ?>
+<?php
+if (!version_compare(phpversion(), "7.0", '>=')) echo "skip >= PHP 7.0 needed\n";
+if (!version_compare(phpversion(), "7.1", '<')) echo "skip < PHP 7.1 needed\n";
+?>
 --INI--
 xdebug.default_enable=1
 xdebug.auto_trace=0
@@ -27,10 +30,8 @@ xdebug.overload_var_dump=0
 	var_dump($cc[$file]);
 ?>
 --EXPECT--
-array(3) {
+array(2) {
   [5]=>
-  int(1)
-  [7]=>
   int(1)
   [9]=>
   int(1)
