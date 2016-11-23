@@ -166,9 +166,9 @@ int xdebug_create_socket(const char *hostname, int dport TSRMLS_DC)
 				/* If the poll was successful but an error occured */
 				if (ufds[0].revents & (POLLERR | POLLHUP | POLLNVAL)) {
 #if WIN32|WINNT
-					XDEBUG_LOG_PRINT(XG(remote_log_file), "W: Creating socket for '%s:%d', WSAPoll: %d.\n", hostname, dport, WSAGetLastError());
+					XDEBUG_LOG_PRINT(XG(remote_log_file), "W: Creating socket for '%s:%d', WSAPoll: %d (%d).\n", hostname, dport, WSAGetLastError(), ufds[0].revents);
 #else
-					XDEBUG_LOG_PRINT(XG(remote_log_file), "W: Creating socket for '%s:%d', poll: %s.\n", hostname, dport, strerror(errno));
+					XDEBUG_LOG_PRINT(XG(remote_log_file), "W: Creating socket for '%s:%d', poll: %s (%d).\n", hostname, dport, strerror(errno), ufds[0].revents);
 #endif
 					sockerror = SOCK_ERR;
 					break;
